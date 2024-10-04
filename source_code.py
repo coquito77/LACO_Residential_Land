@@ -19,13 +19,14 @@ from pathlib import Path
 #get current working directory
 cwd = os.getcwd()
 print(cwd)
+
 #create data directory if not exist
-if not os.path.exists(f"{cwd}/data/"):
-    os.makedirs(f"{cwd}/data/")
+if not os.path.exists(os.path.join(cwd, "data/")):
+    os.makedirs(os.path.join(cwd, "data/"))
 
 pd.set_option('display.max_columns', None) # this is to view all columns for validation
 
-my_file = Path(f"{cwd}/data/LACounty_Parcels.gdb") # set the location of data file
+my_file = Path(os.path.join(cwd, "data/LACounty_Parcels.gdb")) # set the location of data file
 
 # create variable to measure
 use_type_land = "Residential"
@@ -36,7 +37,7 @@ if not my_file.exists():
     # download the zip file of LA County parcels and unzip it
     r = requests.get("https://apps.gis.lacounty.gov/hubfiles/LACounty_Parcels.zip")
     z = zipfile.ZipFile(io.BytesIO(r.content))
-    z.extractall(f"{cwd}/data/")
+    z.extractall(os.path.join(cwd, "data/"))
 
 # create function to read map data
 def map_reader(file1):
@@ -44,9 +45,15 @@ def map_reader(file1):
 
     return df1
 
-LA_parcels = gpd.read_file(f"{cwd}/data/LACounty_Parcels.gdb")
+LA_parcels = gpd.read_file(my_file)
 
 LA_parcels.info() # get file information
+
+# get map prjection
+
+crs = LA_parcels.crs
+
+print(crs)
 
 # read the data, then disolve the polygons based on the Use Type colum
 startTime = dt.now() # start timer
@@ -70,27 +77,25 @@ plt.tight_layout()
 plt.show()
 
 # save plots directory if not exist, create folder if none exists
-if not os.path.exists(f"{cwd}/output/"):
-    os.makedirs(f"{cwd}/output/")
+if not os.path.exists(os.path.join(cwd, "output/")):
+    os.makedirs(os.path.join(cwd, "output/"))
 
-fig.savefig(f"{cwd}/output/LACO_Parcels_Disolved.png", dpi=fig.dpi)
+fig.savefig(os.path.join(cwd, "output/LACO_Parcels_Disolved.png"), dpi=fig.dpi)
 
-# Calculate total area in the County
-dissolved_gdf['area'] = dissolved_gdf.geometry.area
+# Calculate total area in the County in square miles
+LA_parcels['area'] = LA_parcels.geometry.area
 
 # Calculate the total area in the County
-total_area = dissolved_gdf['area'].sum()
+total_area = LA_parcels['area'].sum()
 
 print("Total area of County is: {} {}".format(total_area/2.788e+7, "square miles."))
 
 # Filter the data to only include the specified land type
 
-filtered_data = dissolved_gdf[dissolved_gdf["UseType"] == use_type_land]
+filtered_data = LA_parcels[LA_parcels["UseType"] == use_type_land]
 
 # Calculate the total area and convert the area to square miles by dividing by 2.788e+7
 total_target_area = filtered_data.geometry.area.sum()
-
-total_county_area = LA_parcels['area'] = LA_parcels.geometry.area
 
 print("Total area of {} use is: {} {}".format(use_type_land, total_target_area/2.788e+7, "square miles."))
 
