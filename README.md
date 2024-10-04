@@ -12,7 +12,7 @@ The script downloads, unzips, disolves and plots the data on a map.
 - `requirements.txt`: Python dependencies required to run the script.
 
 ## Output
-- This analysis shows that the approximate Residential land area in the County is 1,063 square miles.
+- This analysis shows that the approximate Residential land area in the County is 2,436 square miles.
 - The total land area in the County is 5,209 square miles.
 
 ![Map of Residential Use Areas](output/LACO_Parcels_Disolved.png)
