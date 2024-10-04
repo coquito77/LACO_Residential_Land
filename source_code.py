@@ -45,7 +45,7 @@ def map_reader(file1):
 
     return df1
 
-LA_parcels = gpd.read_file(my_file)
+LA_parcels = map_reader(my_file)
 
 LA_parcels.info() # get file information
 
