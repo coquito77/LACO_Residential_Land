@@ -16,9 +16,22 @@ from datetime import datetime as dt
 import os
 import requests, zipfile, io
 from pathlib import Path
+import logging
+
 #get current working directory
 cwd = os.getcwd()
-print(cwd)
+
+logger = logging.getLogger(__name__)
+
+logger.setLevel("INFO")
+logger
+
+formatter = logging.Formatter("{levelname} - {message}", style="{")
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(formatter)
+logger.addHandler(console_handler)
+
+logger.info("%s: %s", "The Directory is", cwd)
 
 #create data directory if not exist
 if not os.path.exists(os.path.join(cwd, "data/")):
@@ -64,7 +77,7 @@ dissolved_gdf = LA_parcels.dissolve(by='UseType')
 
 dissolved_gdf = dissolved_gdf.reset_index()
 
-print("Done processing data :", dt.now(), "done in", dt.now()-startTime)
+logger.info("%s: %s %s %s", "Done processing data", dt.now(), "done in", dt.now()-startTime)
 
 # plot the map
 
@@ -88,7 +101,7 @@ LA_parcels['area'] = LA_parcels.geometry.area
 # Calculate the total area in the County
 total_area = LA_parcels['area'].sum()
 
-print("Total area of County is: {} {}".format(total_area/2.788e+7, "square miles."))
+logger.info("%s: %s %s", "Total area of County is", total_area/2.788e+7, "square miles.")
 
 # Filter the data to only include the specified land type
 
@@ -97,5 +110,7 @@ filtered_data = LA_parcels[LA_parcels["UseType"] == use_type_land]
 # Calculate the total area and convert the area to square miles by dividing by 2.788e+7
 total_target_area = filtered_data.geometry.area.sum()
 
-print("Total area of {} use is: {} {}".format(use_type_land, total_target_area/2.788e+7, "square miles."))
+logger.info("%s %s %s %s %s", "Total area of", 
+            use_type_land, "is:", total_target_area/2.788e+7, "square miles.")
+
 
